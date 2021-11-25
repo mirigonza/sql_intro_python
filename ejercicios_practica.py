@@ -16,6 +16,7 @@ __email__ = "alumnos@inove.com.ar"
 __version__ = "1.1"
 
 import sqlite3
+from sqlite3.dbapi2 import Cursor
 
 # https://extendsclass.com/sqlite-browser.html
 
@@ -68,12 +69,37 @@ def fill():
     # Observar que hay campos como "grade" y "tutor" que no son obligatorios
     # en el schema creado, puede obivar en algunos casos completar esos campos
 
+    conectar = sqlite3.connect("secundaria.db")
+    cursor = conectar.cursor()
+
+    datos = [("mirian", 44, 2, "javier"), 
+             ("rafael", 12, 1, "juan"),
+             ("ambar", 4, 1, "graciela"),
+             ("pedro", 40, 3, "emma"),
+             ("juana", 39, 2, "hernan")
+             ]
+    cursor.executemany("INSERT INTO estudiante VALUES(NULL,?,?,?,?)", datos)
+
+    conectar.commit()
+   
+    conectar.close()
 
 def fetch():
     print('Comprobemos su contenido, ¿qué hay en la tabla?')
     # Utilizar la sentencia SELECT para imprimir en pantalla
     # todas las filas con todas sus columnas
     # Utilizar fetchone para imprimir de una fila a la vez
+
+    conectar = sqlite3.connect("secundaria.db")
+    cursor = conectar.cursor()
+    cursor.execute("SELECT * FROM estudiante")
+    while True:
+        data = cursor.fetchone()
+        if data is None:
+            break
+        print(data)
+    
+    conectar.close()
 
 
 def search_by_grade(grade):
@@ -85,11 +111,28 @@ def search_by_grade(grade):
     # las siguientes columnas por fila encontrada:
     # id / name / age
 
+    conectar = sqlite3.connect('secundaria.db')
+    cursor = conectar.cursor()
+    for data in cursor.execute("SELECT id, name, age FROM estudiante WHERE grade =?", (grade,)):
+        print(data)
+    
+    conectar.close()
+
 
 def insert(grade):
     print('Nuevos ingresos!')
     # Utilizar la sentencia INSERT para ingresar nuevos estudiantes
     # a la secundaria
+    conectar = sqlite3.connect('secundaria.db')
+    cursor = conectar.cursor()
+    nuevos = [("patricio", 25, 3, "nico"),
+    ("dora", 60, 5, "laura"),
+    ("franco", 45, 2, "javier")]
+
+    cursor.executemany("INSERT INTO estudiante VALUES(NULL,?,?,?,?)", nuevos)
+    conectar.commit()
+    conectar.close()
+
 
 
 def modify(id, name):
@@ -97,6 +140,19 @@ def modify(id, name):
     # Utilizar la sentencia UPDATE para modificar aquella fila (estudiante)
     # cuyo id sea el "id" pasado como parámetro,
     # modificar su nombre por "name" pasado como parámetro
+
+    conectar = sqlite3.connect('personas.db')
+    Cursor = conectar.cursor()
+
+    modificar = conectar.execute("UPDATE estudiante SET id =? and name =? WHERE name =?",
+                         (id, name)).modificar
+
+    print(modificar)
+
+    conectar.commit()
+   
+    conectar.close()
+
 
 
 if __name__ == '__main__':
